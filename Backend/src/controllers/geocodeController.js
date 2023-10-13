@@ -13,14 +13,14 @@ async function getLocalityName(latitude, longitude, apiKey) {
             const components = firstResult.components;
             
             // Scegli il campo che rappresenta meglio la località (county, hamlet, road)
-            const locality = components.county || components.hamlet || components.road || 'Località non trovata';
+            const locality = components.county || components.hamlet || components.road || 'Location not found';
 
             return locality;
         } else {
-            return 'Località non trovata';
+            return 'Location not found';
         }
     } catch (error) {
-        console.error('Errore nella richiesta API:', error);
+        console.error('Error in API request:', error);
         throw error;
     }
 }

@@ -9,16 +9,19 @@ exports.getLocations = async (req, res) => {
     const data = await airQualityService.fetchLocations();
     res.json(data);
   } catch (error) {
-    res.status(500).send('Errore nel recupero dei dati');
+    res.status(500).send('Error in data recovery');
   }
 };
 
 // Logica per salvare la località dell'utente
 exports.postUserLocation = async (req, res) => {
   const userLocation = req.body.location;
+  if (!userLocation) {
+    return res.status(400).send('The "location" field is mandatory in the body of the POST request');
+  }
   // Salvare la località dell'utente nel database o in un altro mezzo di archiviazione
   // Per ora, supponiamo che sia stato salvato correttamente
-  res.status(201).send('Località salvata con successo');
+  res.status(201).send('Location successfully saved');
 };
 
 // Logica per ottenere la località dell'utente
@@ -30,29 +33,13 @@ exports.getUserLocation = async (req, res) => {
 
 const historicalAirQualityService = require('../services/historicalAirQualityService');
 
-/*
-// funzione da cui ottengo i dati per i grafici
-exports.getAggregatedAirQuality = async (req, res) => {
-  const { city, country, startDate, endDate, specie, minCount } = req.query;
-  console.log("Request query:", req.query);
-  const data = await historicalAirQualityService.fetchAggregatedData(city, country, startDate, endDate, specie, minCount);
-
-  if (data && data.country) {
-    console.log(data.country);
-  } else {
-    console.log("Country not found in data.");
-  }
-
-  res.json(data);
-};*/
-
 exports.getAvailableCities = async (req, res) => {
   try {
     const cities = await historicalAirQualityService.fetchAvailableCities();
     res.json(cities);
   } catch (error) {
     console.error(error);
-    res.status(500).send('Errore nel recupero dei dati');
+    res.status(500).send('Error in data recovery');
   }
 };
 
@@ -82,10 +69,10 @@ exports.getDataByDateRange = async (req, res) => {
     if (data && data.length > 0) {
       res.json(data);
     } else {
-      res.status(404).send('Nessun dato trovato');
+      res.status(404).send('No data found');
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send('Errore nel recupero dei dati');
+    res.status(500).send('Error in data recovery');
   }
 };

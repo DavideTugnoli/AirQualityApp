@@ -125,7 +125,6 @@ function parseLocation(location) {
   }
 }
 
-
 const axios = require('axios');
 
 const fetchAndTransformOpenAqData = async (city) => {
@@ -176,6 +175,10 @@ function addOrReplaceMeasurement(array, newEntry) {
 
 app.get('/api/airQualityLocations', async (req, res) => {
   const rawLocation = req.query.city;
+   // Verifica se il parametro "city" è presente nella query
+   if (!rawLocation) {
+    return res.status(400).json({ error: 'Il parametro "city" è obbligatorio nella query.' });
+  }
   const { city, stateCode } = parseLocation(rawLocation);
   console.log(city, stateCode);
   const apiKey = process.env.OPENCAGE_API_KEY;
@@ -290,7 +293,6 @@ app.get('/api/airQualityLocations', async (req, res) => {
   }
 });
 
-
 // controllo se una città è su airnow
 app.get('/api/isCityInAirNow', async (req, res) => {
   try {
@@ -310,8 +312,6 @@ app.get('/api/isCityInAirNow', async (req, res) => {
   }
 
 });
-
-
 
 app.post('/api/updateCityName', async (req, res) => {
   const { oldName, newName } = req.body;

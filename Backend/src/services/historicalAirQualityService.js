@@ -38,6 +38,9 @@ exports.fetchAvailableCities = async () => {
 };
 
 exports.updateCityName = async (oldName, newName) => {
+  if (!oldName || !newName) {
+    throw new Error('The parameters "oldName" and "newName" are mandatory');
+  }
   const client = new MongoClient(url);
 
   try {
@@ -62,6 +65,9 @@ exports.updateCityName = async (oldName, newName) => {
 
 // fetchAggregatedData without specie for easy exportations
 exports.fetchAllAggregatedData = async (city, country, startDate, endDate, specie, minCount) => {
+  if (!city || !startDate || !endDate) {
+    throw new Error('The parameters "city," "startDate," and "endDate" are mandatory');
+  }
   const client = new MongoClient(url);
 
   try {
@@ -145,6 +151,9 @@ exports.fetchAllAggregatedData = async (city, country, startDate, endDate, speci
 };
 
 exports.fetchDataByDateRange = async (city, country, startDate, endDate, specie, minCount) => {
+  if (!city) {
+    throw new Error('The parameter "city," is mandatory');
+  }
   const client = new MongoClient(url);
 
   try {
