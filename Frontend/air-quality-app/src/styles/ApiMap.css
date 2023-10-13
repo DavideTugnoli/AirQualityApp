@@ -1,0 +1,5 @@
+.map-container {
+    width: 100%;
+    height: 50vh; /* Questo occuperà l'intero altezza della vista del viewport */
+  }
+  

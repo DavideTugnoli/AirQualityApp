@@ -1,0 +1,57 @@
+# Node.js related
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Editor related
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+logs/
+*.log
+
+# Build output
+dist/
+build/
+out/
+
+# Dependencies
+package-lock.json
+yarn.lock
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+*.tmp
+
+# IDE settings
+*.idea/
+*.vscode/
+
+# Dataset files
+datasets/
+
+backup.txt
+
+note.md
+
+final_datasets/
+git-filter-repo
+
+python_scripts/
+useful_backups/
+future_updates/
+
+Backend/datasets/
+Backend/final_datasets/

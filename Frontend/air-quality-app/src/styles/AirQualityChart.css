@@ -1,0 +1,12 @@
+.bar-chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1%;
+    height: 400px;
+    width: 600px;
+}
+
+.recharts-wrapper {
+    margin: auto;
+}

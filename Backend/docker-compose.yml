@@ -1,0 +1,28 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - mongodb
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+      interval: 5s
+    volumes:
+      - mongodb_data:/data/db
+      - ./datasets:/datasets
+      - ./final_datasets:/final_datasets
+volumes:
+  mongodb_data:
