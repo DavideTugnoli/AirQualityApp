@@ -173,6 +173,19 @@ function addOrReplaceMeasurement(array, newEntry) {
   }
 }
 
+const formatDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  let month = today.getMonth() + 1; // I mesi vanno da 0 a 11, quindi aggiungiamo 1
+  let day = today.getDate();
+
+  // Aggiungiamo uno 0 davanti ai mesi e ai giorni che sono monodigit (es: 1 -> 01)
+  month = month < 10 ? '0' + month : month;
+  day = day < 10 ? '0' + day : day;
+
+  return `${year}-${month}-${day}`;
+};
+
 app.get('/api/airQualityLocations', async (req, res) => {
   const rawLocation = req.query.city;
   // Verifica se il parametro "city" è presente nella query
@@ -243,7 +256,8 @@ app.get('/api/airQualityLocations', async (req, res) => {
         airQualityData = cachedData;
       } else {
         for (const param of parameters) {
-          const airNowUrl = `https://www.airnowapi.org/aq/data/?startDate=2023-09-22T08&endDate=2023-09-22T09&parameters=${param}&BBOX=${minLng},${minLat},${maxLng},${maxLat}&dataType=C&format=application/json&API_KEY=${process.env.AIRNOW_API_KEY}`;
+          const today = formatDate(); 
+          const airNowUrl = `https://www.airnowapi.org/aq/data/?startDate=${today}T08&endDate=${today}T09&parameters=${param}&BBOX=${minLng},${minLat},${maxLng},${maxLat}&dataType=C&format=application/json&API_KEY=${process.env.AIRNOW_API_KEY}`;
           console.log("Url composto " + airNowUrl);
           const response = await axios.get(airNowUrl);
           const data = response.data;
