@@ -190,7 +190,7 @@ app.get('/api/airQualityLocations', async (req, res) => {
   const rawLocation = req.query.city;
   // Verifica se il parametro "city" è presente nella query
   if (!rawLocation) {
-    return res.status(400).json({ error: 'Il parametro "city" è obbligatorio nella query.' });
+    return res.status(400).json({ error: 'The parameter "city" is mandatory in the query' });
   }
   const { city, stateCode } = parseLocation(rawLocation);
   console.log(city, stateCode);
