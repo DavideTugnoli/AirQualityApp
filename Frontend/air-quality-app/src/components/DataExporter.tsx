@@ -80,25 +80,43 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
             const country = cityParts[1]?.replace(')', '') || '';
 
             const fetchedData = await fetchAllHistoricalDataSelectedLocation({ city: cityName, country, startDate, endDate });
+            const additionalLinks: { [key: string]: string } = {
+                "AQICN Historical Dataset Link": "https://aqicn.org/data-platform/covid19/"
+            };
 
             if (fetchedData) {
                 // Codifica i dati in CSV, JSON o XML a seconda di exportFormat
                 if (exportFormat === "csv") {
                     const csv = Papa.unparse(fetchedData);
-                    const blob = new Blob([csv], { type: 'text/csv' });
+                    const additionalLinksCSV = Object.entries(additionalLinks).map(([key, value]) => `${key}: ${value}`).join('\n');
+                    const csvWithLinks = `Additional Links:\n${additionalLinksCSV}\n${csv}`;
+                    const blob = new Blob([csvWithLinks], { type: 'text/csv' });
                     saveAs(blob, 'all_historical_data.csv');
                 } else if (exportFormat === "json") {
-                    const json = JSON.stringify(fetchedData, null, 2);
+                    const json = JSON.stringify({ "Additional Links": additionalLinks, data: fetchedData }, null, 2);
                     const blob = new Blob([json], { type: 'application/json' });
                     saveAs(blob, 'all_historical_data.json');
                 } else if (exportFormat === "xml") {
                     const xml = builder.create('root');
+
+                    // Creare un nodo specifico per i link aggiuntivi
+                    const linksNode = xml.ele('AdditionalLinks');
+                    Object.keys(additionalLinks).forEach((key) => {
+                        const linkElement = linksNode.ele('Link'); // Creare un nuovo elemento chiamato "Link"
+                        linkElement.att('name', key); // Impostare l'attributo "name" al valore della chiave
+                        linkElement.txt(additionalLinks[key]); // Impostare il testo al valore associato alla chiave
+                    });
+
+
+                    // Creare i nodi per i dati
+                    const dataNode = xml.ele('Data');
                     fetchedData.forEach((item: any) => {
-                        const entry = xml.ele('entry');
+                        const entry = dataNode.ele('entry');
                         Object.keys(item).forEach((key) => {
                             entry.ele(key, {}, item[key]);
                         });
                     });
+
                     const xmlString = xml.end({ pretty: true });
                     const blob = new Blob([xmlString], { type: 'application/xml' });
                     saveAs(blob, 'all_historical_data.xml');
@@ -135,27 +153,45 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
         const mergedData = [...meteorologicalDataWithInfo, ...pollutantDataWithInfo];
 
         // const aqicnLink = generateAQICNLink(city);
+        const additionalLinks: { [key: string]: string } = {
+            "AQICN Link": aqicnLink,
+            "AQICN Historical Dataset Link": "https://aqicn.org/data-platform/covid19/"
+        };
 
         if (exportFormat === "csv") {
             const csv = Papa.unparse(mergedData);
             //const additionalLinks = `AQICN Link: ${aqicnLink}${airNowLink ? `\nAirNow Link: ${airNowLink}` : ''}\n`;
-            const additionalLinks = `AQICN Link: ${aqicnLink}\n`;
-            const csvWithLinks = `Additional Links: ${additionalLinks}\n${csv}`;
+            const additionalLinksCSV = Object.entries(additionalLinks).map(([key, value]) => `${key}: ${value}`).join('\n');
+            const csvWithLinks = `Additional Links:\n${additionalLinksCSV}\n${csv}`;
             const blob = new Blob([csvWithLinks], { type: 'text/csv' });
             saveAs(blob, 'year_aggregated_avg_selected_historical_data.csv');
         } else if (exportFormat === "json") {
-            const json = JSON.stringify({ aqicnLink, data: mergedData }, null, 2);
+            const json = JSON.stringify({
+                "Additional Links": additionalLinks,
+                data: mergedData
+            }, null, 2);
             const blob = new Blob([json], { type: 'application/json' });
             saveAs(blob, 'year_aggregated_avg_selected_historical_data.json');
         } else if (exportFormat === "xml") {
             const xml = builder.create('root');
-            xml.ele('AQICNLink', {}, aqicnLink);
+
+            // Aggiungi i link aggiuntivi come elementi separati
+            const additionalLinksElement = xml.ele('AdditionalLinks');
+
+            Object.keys(additionalLinks).forEach((key) => {
+                const linkElement = additionalLinksElement.ele('Link'); // Creare un nuovo elemento chiamato "Link"
+                linkElement.att('name', key); // Impostare l'attributo "name" al valore della chiave
+                linkElement.txt(additionalLinks[key]); // Impostare il testo al valore associato alla chiave
+            });
+
+            // Aggiungi i dati
             mergedData.forEach((item: any) => {
                 const entry = xml.ele('entry');
                 Object.keys(item).forEach((key) => {
                     entry.ele(key, {}, item[key]);
                 });
             });
+
             const xmlString = xml.end({ pretty: true });
             const blob = new Blob([xmlString], { type: 'application/xml' });
             saveAs(blob, 'year_aggregated_avg_selected_historical_data.xml');
@@ -198,28 +234,43 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
             // Uniamo i due set di dati in un unico array
             const mergedData = [...meteorologicalData, ...pollutantData];
 
+            const additionalLinks: { [key: string]: string } = {
+                "AQICN Link": aqicnLink,
+                "AQICN Historical Dataset Link": "https://aqicn.org/data-platform/covid19/"
+            };
+
             if (exportFormat === "csv") {
                 // Convertiamo l'array di oggetti in una stringa CSV
                 const csv = Papa.unparse(mergedData);
-
-                const additionalLinks = `AQICN Link: ${aqicnLink}${airNowLink ? `\nAirNow Link: ${airNowLink}` : ''}\n`;
-                const csvWithLinks = `Additional Links: ${additionalLinks}\n${csv}`;
+                const additionalLinksCSV = Object.entries(additionalLinks).map(([key, value]) => `${key}: ${value}`).join('\n');
+                const csvWithLinks = `Additional Links:\n${additionalLinksCSV}\n${csv}`;
                 // Creiamo un blob con la stringa CSV e avviamo il download del file CSV
                 const blob = new Blob([csvWithLinks], { type: 'text/csv' });
                 saveAs(blob, 'all_year_aggregated_avg_historical_data.csv');
             } else if (exportFormat === "json") {
-                const json = JSON.stringify({ aqicnLink, data: mergedData }, null, 2);
+                const json = JSON.stringify({
+                    "Additional Links": additionalLinks,
+                    data: mergedData
+                }, null, 2);
                 const blob = new Blob([json], { type: 'application/json' });
                 saveAs(blob, 'all_year_aggregated_avg_historical_data.json');
             } else if (exportFormat === "xml") {
                 const xml = builder.create('root');
-                xml.ele('AQICNLink', {}, aqicnLink);
+
+                const additionalLinksElement = xml.ele('AdditionalLinks');
+                Object.keys(additionalLinks).forEach((key) => {
+                    const linkElement = additionalLinksElement.ele('Link');
+                    linkElement.att('name', key);
+                    linkElement.txt(additionalLinks[key]);
+                });
+
                 mergedData.forEach((item: any) => {
                     const entry = xml.ele('entry');
                     Object.keys(item).forEach((key) => {
                         entry.ele(key, {}, item[key]);
                     });
                 });
+
                 const xmlString = xml.end({ pretty: true });
                 const blob = new Blob([xmlString], { type: 'application/xml' });
                 saveAs(blob, 'all_year_aggregated_avg_historical_data.xml');
@@ -262,7 +313,7 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
                     //console.log(data);
                     if (data.isInList) {
                         return `https://www.airnow.gov/?city=${encodeURIComponent(data.city)}&state=${encodeURIComponent(data.stateCode)}`;
-                       // return `https://www.airnow.gov/?reportingArea`;
+                        // return `https://www.airnow.gov/?reportingArea`;
                     }
                 } catch (error) {
                     console.error('Errore nel verificare la città nel DB:', error);
@@ -304,14 +355,18 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
 
             if (exportFormat === "csv") {
                 const csv = Papa.unparse(dataToExport);
-                //let additionalLinks = `AQICN Link: ${aqicnUrl}\n`;
+                let additionalLinks = '';
+                if (airNowLink) {
+                    additionalLinks += `AirNow Link: ${airNowLink}\n`;
+                }
+                additionalLinks += `OpenAQ Link: https://explore.openaq.org/\n`;
                 const csvWithLinks = `Additional Links: ${additionalLinks}\n${csv}`;
                 const blob = new Blob([csvWithLinks], { type: 'text/csv' });
                 saveAs(blob, 'most_recent_data.csv');
             } else if (exportFormat === "json") {
                 const json = JSON.stringify({
                     additionalLinks: {
-                        airNowLink,
+                        ... (airNowLink && { airNowLink }),
                         openAqLink: "https://explore.openaq.org/"
                     },
                     data: dataToExport
@@ -320,11 +375,11 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
                 saveAs(blob, 'most_recent_data.json');
             } else if (exportFormat === "xml") {
                 const xml = builder.create('root');
-                //xml.ele('AQICNLink', {}, aqicnUrl);
-                xml.ele('AdditionalLinks')
-                .ele('AirNowLink', {}, airNowLink)
-                .up()
-                .ele('OpenAQLink', {}, "https://explore.openaq.org/");
+                const additionalLinksElement = xml.ele('AdditionalLinks');
+                if (airNowLink) {
+                    additionalLinksElement.ele('AirNowLink', {}, airNowLink);
+                }
+                additionalLinksElement.ele('OpenAQLink', {}, "https://explore.openaq.org/");
                 dataToExport.forEach((item) => {
                     const entry = xml.ele('entry');
                     Object.keys(item).forEach((key) => {
