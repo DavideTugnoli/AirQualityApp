@@ -118,7 +118,7 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
 
         // Creiamo una lista di oggetti con i dati meteorologici, includendo il nome del dato e il tipo (metereologico)
         const meteorologicalDataWithInfo = meteorologicalData.map((item: any) => {
-            console.log(item);  // Log dell'oggetto item per diagnosticare il problema
+            //console.log(item);  // Log dell'oggetto item per diagnosticare il problema
             return {
                 type: 'Meteorological',
                 ...item,
@@ -259,9 +259,10 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
                 try {
                     const response = await fetch(`http://localhost:3000/api/isCityInAirNow?city=${cityName}`);
                     const data = await response.json();
+                    //console.log(data);
                     if (data.isInList) {
-                        //return `https://www.airnow.gov/state/?name=${cityName}`;
-                        return `https://www.airnow.gov/?reportingArea`;
+                        return `https://www.airnow.gov/?city=${encodeURIComponent(data.city)}&state=${encodeURIComponent(data.stateCode)}`;
+                       // return `https://www.airnow.gov/?reportingArea`;
                     }
                 } catch (error) {
                     console.error('Errore nel verificare la città nel DB:', error);
@@ -281,7 +282,7 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
             console.log('Current Data:', currentData);
 
             if (!currentData || currentData.length === 0) {
-                console.error('Nessun dato ricevuto dalla API');
+                console.error('No data received from API');
                 return;
             }
 
@@ -294,27 +295,36 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
 
             console.log('Data to Export:', dataToExport);
 
+            let additionalLinks = ``;
+            if (airNowLink) {
+                additionalLinks += `AirNow Link: ${airNowLink}\n`;
+                //console.log(additionalLinks);
+            }
+            additionalLinks += `OpenAQ Link: https://explore.openaq.org/\n`;
+
             if (exportFormat === "csv") {
                 const csv = Papa.unparse(dataToExport);
                 //let additionalLinks = `AQICN Link: ${aqicnUrl}\n`;
-                let additionalLinks = ``;
-                if (airNowLink) {
-                    additionalLinks += `AirNow Link: ${airNowLink}\n`;
-                }
-                additionalLinks += `OpenAQ Link: https://explore.openaq.org/\n`;
-
                 const csvWithLinks = `Additional Links: ${additionalLinks}\n${csv}`;
-
                 const blob = new Blob([csvWithLinks], { type: 'text/csv' });
                 saveAs(blob, 'most_recent_data.csv');
             } else if (exportFormat === "json") {
-                const json = JSON.stringify({ openAqLink: "https://explore.openaq.org/", data: dataToExport }, null, 2);
+                const json = JSON.stringify({
+                    additionalLinks: {
+                        airNowLink,
+                        openAqLink: "https://explore.openaq.org/"
+                    },
+                    data: dataToExport
+                }, null, 2);
                 const blob = new Blob([json], { type: 'application/json' });
                 saveAs(blob, 'most_recent_data.json');
             } else if (exportFormat === "xml") {
                 const xml = builder.create('root');
                 //xml.ele('AQICNLink', {}, aqicnUrl);
-                xml.ele('OpenAQLink', {}, "https://explore.openaq.org/");
+                xml.ele('AdditionalLinks')
+                .ele('AirNowLink', {}, airNowLink)
+                .up()
+                .ele('OpenAQLink', {}, "https://explore.openaq.org/");
                 dataToExport.forEach((item) => {
                     const entry = xml.ele('entry');
                     Object.keys(item).forEach((key) => {
@@ -341,9 +351,9 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
                     Export type:
                     <select onChange={e => { setExportType(e.target.value); exportData(e.target.value); }} value={exportType}>
                         <option value="" disabled>Choose an option</option>
-                        <option value="selected-avg-year-historical">Currently Year Aggregated Avg Selected Historical Data</option>
-                        <option value="all-avg-year-historical">All Year Aggregated Avg Historical Data</option>
-                        <option value="all-historical">All Historical Data Of Selected Location & Date Range</option>
+                        <option value="selected-avg-year-historical">Currently 'Year Avg' Selected Historical Data</option>
+                        <option value="all-avg-year-historical">All 'Year Avg' Historical Data</option>
+                        <option value="all-historical">All City Historical Data for Selected Date Range</option>
                         <option value="current">Most Recent Data</option>
                     </select>
                 </label>

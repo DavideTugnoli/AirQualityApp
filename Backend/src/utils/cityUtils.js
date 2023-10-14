@@ -33,15 +33,20 @@ async function isCityInYourList(city, stateCode = null) {
       query.stateCode = stateCode;
     }
 
-    const cityExists = await collection.findOne(query);
-    return cityExists !== null;
+    const cityRecord = await collection.findOne(query);
+    if (cityRecord !== null) {
+      return { exists: true, stateCode: cityRecord.stateCode };
+    }
+    return { exists: false, stateCode: null };
 
   } catch (err) {
     console.error(err);
+    return { exists: false, stateCode: null };
   } finally {
     await client.close();
   }
 }
+
 
 module.exports = {
   cleanCityName,

@@ -175,8 +175,8 @@ function addOrReplaceMeasurement(array, newEntry) {
 
 app.get('/api/airQualityLocations', async (req, res) => {
   const rawLocation = req.query.city;
-   // Verifica se il parametro "city" è presente nella query
-   if (!rawLocation) {
+  // Verifica se il parametro "city" è presente nella query
+  if (!rawLocation) {
     return res.status(400).json({ error: 'Il parametro "city" è obbligatorio nella query.' });
   }
   const { city, stateCode } = parseLocation(rawLocation);
@@ -217,13 +217,15 @@ app.get('/api/airQualityLocations', async (req, res) => {
       // Aggiorna la query per incorporare lo stateCode, se presente
       const query = { city: cleanedCityName };
       if (stateCode) {
-        query.state = stateCode;
+        query.stateCode = stateCode;
       }
+      // console.log(query);
       const cityData = await airNowCitiesCollection.findOne(query);
-
-      if (!cityData || !cityData.bbox) {
-        console.error(`BBOX not found in the database for the city: ${city}`);
-        return res.status(500).send('Internal Server Error');
+      // console.log(cityData);
+      if (cityData) {
+        console.log("City data found:", cityData);
+      } else {
+        console.log("No city data found for the specified query.");
       }
 
       const stateName = cityData.state;
@@ -301,14 +303,14 @@ app.get('/api/isCityInAirNow', async (req, res) => {
     const cleanedCityName = cleanCityName(city); // Pulisce il nome della città
 
     // Utilizza la funzione isCityInYourList da cityUtils per controllare se la città e lo stateCode (se presente) sono nella lista
-    const cityInList = await isCityInYourList(cleanedCityName, stateCode);
+    const result = await isCityInYourList(cleanedCityName, stateCode);
 
     // Restituisce il risultato come JSON
-    res.status(200).json({ city: cleanedCityName, isInList: cityInList });
+    res.status(200).json({ city: cleanedCityName, stateCode: result.stateCode, isInList: result.exists });
 
   } catch (error) {
-    console.error("Errore nel controllare se la città è nella lista:", error);
-    res.status(500).json({ error: "Errore interno del server" });
+    console.error("Error in checking whether the city is in the list:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 
 });
