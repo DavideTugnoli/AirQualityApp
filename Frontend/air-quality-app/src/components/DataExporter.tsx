@@ -38,7 +38,7 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
                     setAqicnLink(data.data.city.url);
                 }
             } catch (error) {
-                console.error('Errore nel recuperare l’URL AQICN:', error);
+                console.error('Error in retrieving AQICN URL:', error);
             }
         };
 
@@ -53,7 +53,7 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
                     setAirNowLink(`https://www.airnow.gov/?reportingArea`);
                 }
             } catch (error) {
-                console.error('Errore nel verificare la città nel DB:', error);
+                console.error('Error in verifying city in DB:', error);
             }
         };
 
@@ -122,12 +122,12 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
                     saveAs(blob, 'all_historical_data.xml');
                 }
             } else {
-                console.error('Nessun dato recuperato per l\'esportazione.');
+                console.error('No data retrieved for export.');
             }
 
 
         } catch (error) {
-            console.error('Si è verificato un errore durante il recupero dei dati:', error);
+            console.error('An error occurred during data recovery:', error);
         }
     }
 
@@ -276,14 +276,14 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
                 saveAs(blob, 'all_year_aggregated_avg_historical_data.xml');
             }
         } catch (error) {
-            console.error('Si è verificato un errore durante il recupero dei dati:', error);
+            console.error('An error occurred during data recovery:', error);
         }
     };
 
     const exportCurrentData = async () => {
         try {
             if (!city) {
-                console.error('Città non specificata.');
+                console.error('City not specified.');
                 return;
             }
 
@@ -299,7 +299,7 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
                         return data.data.city.url;
                     }
                 } catch (error) {
-                    console.error('Errore nel recuperare l’URL AQICN:', error);
+                    console.error('Error in retrieving AQICN URL:', error);
                 }
 
                 return ''; // Restituisce una stringa vuota se non riesce a ottenere l'URL
@@ -316,7 +316,7 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
                         // return `https://www.airnow.gov/?reportingArea`;
                     }
                 } catch (error) {
-                    console.error('Errore nel verificare la città nel DB:', error);
+                    console.error('Error in verifying city in DB:', error);
                 }
 
                 return ''; // Restituisce una stringa vuota se la città non è nel database
@@ -392,7 +392,7 @@ const DataExporter: React.FC<DataExporterProps> = ({ data, visualization, city, 
                 saveAs(blob, 'most_recent_data.xml');
             }
         } catch (error) {
-            console.error('Errore durante il recupero dei dati:', error);
+            console.error('Error during data recovery:', error);
         }
     };
 
